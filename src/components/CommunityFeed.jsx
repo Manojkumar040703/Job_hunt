@@ -12,12 +12,17 @@ import {
   IconSend,
   IconImage,
   IconUploadCloud,
+  IconEdit,
+  IconTrash,
+  IconCheck,
 } from "./Icons";
 import { useAuth } from "../context/AuthContext";
 
 export default function CommunityFeed({
   posts = [],
   onCreatePost,
+  onEditPost,
+  onDeletePost,
   onLikePost,
   onAddComment,
   onToast,
@@ -25,12 +30,16 @@ export default function CommunityFeed({
   const { user, openLogin } = useAuth();
   const [activeFilter, setActiveFilter] = useState("ALL"); // "ALL" | "HIRING" | "ACHIEVEMENT" | "OPENTOWORK"
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState(null);
+  const [postToDelete, setPostToDelete] = useState(null);
+
   const [followedAuthors, setFollowedAuthors] = useState(["Kavitha Rajendran"]);
   const [connectedAuthors, setConnectedAuthors] = useState(["Ravikumar"]);
   const [selectedAuthorProfile, setSelectedAuthorProfile] = useState(null);
   const [activeCommentPostId, setActiveCommentPostId] = useState(null);
   const [commentInput, setCommentInput] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+  const [editImagePreview, setEditImagePreview] = useState(null);
 
   const [newPostForm, setNewPostForm] = useState({
     content: "",
@@ -38,6 +47,22 @@ export default function CommunityFeed({
     tags: "TamilNaduJobs, CareerGrowth",
     image: null,
   });
+
+  const [editPostForm, setEditPostForm] = useState({
+    content: "",
+    badge: "Career Update 🎉",
+    tags: "",
+    image: null,
+  });
+
+  const POPULAR_TAGS = [
+    "TamilNaduJobs",
+    "CareerGrowth",
+    "ChennaiTech",
+    "CoimbatoreJobs",
+    "HiringAlert",
+    "SoftwareEngineering",
+  ];
 
   function handleImageUpload(e) {
     const file = e.target.files && e.target.files[0];
@@ -61,12 +86,99 @@ export default function CommunityFeed({
     setNewPostForm((prev) => ({ ...prev, image: null }));
   }
 
+  function handleEditImageUpload(e) {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        if (onToast) onToast("⚠️ Photo size exceeds 5MB limit.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (uploadEvent) => {
+        const dataUrl = uploadEvent.target.result;
+        setEditImagePreview(dataUrl);
+        setEditPostForm((prev) => ({ ...prev, image: dataUrl }));
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function handleRemoveEditImage() {
+    setEditImagePreview(null);
+    setEditPostForm((prev) => ({ ...prev, image: null }));
+  }
+
+  function canManagePost(post) {
+    if (!post) return false;
+    if (user?.role === "admin") return true;
+    if (
+      user?.name &&
+      post.authorName &&
+      user.name.trim().toLowerCase() === post.authorName.trim().toLowerCase()
+    ) {
+      return true;
+    }
+    if (String(post.id).startsWith("post-")) {
+      return true;
+    }
+    if (
+      user?.name &&
+      (post.authorName?.toLowerCase() === "manoj" ||
+        post.authorName?.toLowerCase() === "karthik subramanian")
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  function handleOpenEditModal(post) {
+    setEditingPost(post);
+    setEditPostForm({
+      content: post.content || "",
+      badge: post.badge || "Career Update 🎉",
+      tags: Array.isArray(post.tags) ? post.tags.join(", ") : post.tags || "",
+      image: post.image || null,
+    });
+    setEditImagePreview(post.image || null);
+  }
+
+  function handleEditPostSubmit(e) {
+    e.preventDefault();
+    if (!editPostForm.content.trim()) return;
+
+    if (onEditPost && editingPost) {
+      onEditPost(editingPost.id, {
+        content: editPostForm.content.trim(),
+        badge: editPostForm.badge,
+        tags: editPostForm.tags
+          .split(",")
+          .map((t) => t.trim().replace(/^#/, ""))
+          .filter(Boolean),
+        image: editPostForm.image,
+      });
+    }
+
+    setEditingPost(null);
+    if (onToast) onToast("✅ Post updated successfully!");
+  }
+
+  function handleConfirmDelete() {
+    if (onDeletePost && postToDelete) {
+      onDeletePost(postToDelete.id);
+      if (onToast) onToast("🗑️ Post was deleted from the feed.");
+    }
+    setPostToDelete(null);
+  }
+
   const filteredPosts = posts.filter((post) => {
     if (activeFilter === "ALL") return true;
     if (activeFilter === "HIRING")
       return post.badge?.toLowerCase().includes("hiring");
     if (activeFilter === "ACHIEVEMENT")
-      return post.badge?.toLowerCase().includes("achievement") || post.badge?.toLowerCase().includes("milestone");
+      return (
+        post.badge?.toLowerCase().includes("achievement") ||
+        post.badge?.toLowerCase().includes("milestone")
+      );
     if (activeFilter === "OPENTOWORK")
       return post.badge?.toLowerCase().includes("open");
     return true;
@@ -83,7 +195,11 @@ export default function CommunityFeed({
         ? prev.filter((name) => name !== authorName)
         : [...prev, authorName];
       if (onToast)
-        onToast(isFollowing ? `Unfollowed ${authorName}` : `Now following ${authorName}!`);
+        onToast(
+          isFollowing
+            ? `Unfollowed ${authorName}`
+            : `Now following ${authorName}!`
+        );
       return next;
     });
   }
@@ -99,7 +215,11 @@ export default function CommunityFeed({
         ? prev.filter((name) => name !== authorName)
         : [...prev, authorName];
       if (onToast)
-        onToast(isConnected ? `Removed connection with ${authorName}` : `🤝 Connected with ${authorName}!`);
+        onToast(
+          isConnected
+            ? `Removed connection with ${authorName}`
+            : `🤝 Connected with ${authorName}!`
+        );
       return next;
     });
   }
@@ -111,16 +231,18 @@ export default function CommunityFeed({
       district: post.authorDistrict || "Tamil Nadu",
       avatar: post.authorAvatar || post.authorName.charAt(0),
       badge: post.badge,
-      bio: post.authorName === "Ravikumar"
-        ? "Lead Recruiter at Hyundai Motor India's Sriperumbudur facility. Passionate about automotive R&D, embedded systems, and EV engineering talent."
-        : post.authorName === "Divya"
-        ? "Technical Talent Partner at Freshworks Inc (OMR Chennai). Specializing in Python, FastAPI, and distributed cloud engineering hires."
-        : "Active professional in Tamil Nadu's career network. Open to collaborations, technical discussions, and career opportunities.",
-      skills: post.authorName === "Ravikumar"
-        ? ["Technical Hiring", "Automotive", "CAN Bus", "Embedded Systems"]
-        : post.authorName === "Divya"
-        ? ["SaaS Recruiting", "Python", "FastAPI", "Engineering Leadership"]
-        : ["Full Stack Development", "FastAPI", "React", "SQL"],
+      bio:
+        post.authorName === "Ravikumar"
+          ? "Lead Recruiter at Hyundai Motor India's Sriperumbudur facility. Passionate about automotive R&D, embedded systems, and EV engineering talent."
+          : post.authorName === "Divya"
+          ? "Technical Talent Partner at Freshworks Inc (OMR Chennai). Specializing in Python, FastAPI, and distributed cloud engineering hires."
+          : "Active professional in Tamil Nadu's career network. Open to collaborations, technical discussions, and career opportunities.",
+      skills:
+        post.authorName === "Ravikumar"
+          ? ["Technical Hiring", "Automotive", "CAN Bus", "Embedded Systems"]
+          : post.authorName === "Divya"
+          ? ["SaaS Recruiting", "Python", "FastAPI", "Engineering Leadership"]
+          : ["Full Stack Development", "FastAPI", "React", "SQL"],
     });
   }
 
@@ -130,9 +252,9 @@ export default function CommunityFeed({
 
     const newPost = {
       id: "post-" + Date.now(),
-      authorName: user?.name || "Karthik Subramanian",
+      authorName: user?.name || "Manoj",
       authorTitle: user?.title || "Full Stack Software Engineer",
-      authorAvatar: user?.avatar || "KS",
+      authorAvatar: user?.avatar || "M",
       authorDistrict: user?.district || "Coimbatore",
       authorPhoto: user?.profilePhoto || null,
       timestamp: "Just now",
@@ -143,7 +265,10 @@ export default function CommunityFeed({
       commentsCount: 0,
       isLiked: false,
       comments: [],
-      tags: newPostForm.tags.split(",").map((t) => t.trim().replace(/^#/, "")).filter(Boolean),
+      tags: newPostForm.tags
+        .split(",")
+        .map((t) => t.trim().replace(/^#/, ""))
+        .filter(Boolean),
     };
 
     onCreatePost(newPost);
@@ -155,7 +280,7 @@ export default function CommunityFeed({
       tags: "TamilNaduJobs, CareerGrowth",
       image: null,
     });
-    if (onToast) onToast("🚀 Published your update with photo to Tamil Nadu talent feed!");
+    if (onToast) onToast("🚀 Published your update to Tamil Nadu talent feed!");
   }
 
   function handleCommentSubmit(postId) {
@@ -193,7 +318,7 @@ export default function CommunityFeed({
 
         <button
           type="button"
-          className="btn btn-primary btn-lg"
+          className="btn btn-primary btn-lg pulse-hover-btn"
           onClick={() => {
             if (!user) openLogin();
             else setIsCreateModalOpen(true);
@@ -230,6 +355,7 @@ export default function CommunityFeed({
           const isFollowing = followedAuthors.includes(post.authorName);
           const isConnected = connectedAuthors.includes(post.authorName);
           const isCommentsOpen = activeCommentPostId === post.id;
+          const isManageable = canManagePost(post);
 
           return (
             <article key={post.id} className="feed-post-card">
@@ -245,7 +371,7 @@ export default function CommunityFeed({
                     {post.authorPhoto ? (
                       <img src={post.authorPhoto} alt={post.authorName} className="author-avatar-img" />
                     ) : (
-                      post.authorAvatar || "TN"
+                      post.authorAvatar || post.authorName?.charAt(0) || "TN"
                     )}
                   </div>
                   <div>
@@ -258,26 +384,56 @@ export default function CommunityFeed({
                       )}
                     </div>
                     <p className="author-title">{post.authorTitle}</p>
-                    <span className="post-timestamp">{post.timestamp}</span>
+                    <span className="post-timestamp">
+                      {post.timestamp}
+                      {post.isEdited && (
+                        <span className="post-edited-indicator" title="Edited by author">
+                          • Edited
+                        </span>
+                      )}
+                    </span>
                   </div>
                 </div>
 
                 <div className="post-header-actions">
-                  <button
-                    type="button"
-                    className={`btn-connect-toggle ${isConnected ? "btn-connect-toggle--active" : ""}`}
-                    onClick={() => handleToggleConnect(post.authorName)}
-                    title={isConnected ? "Connected in network" : "Send connection request"}
-                  >
-                    {isConnected ? "🤝 Connected" : "+ Connect"}
-                  </button>
-                  <button
-                    type="button"
-                    className={`btn-follow-toggle ${isFollowing ? "btn-follow-toggle--active" : ""}`}
-                    onClick={() => handleToggleFollow(post.authorName)}
-                  >
-                    {isFollowing ? "Following ✓" : "+ Follow"}
-                  </button>
+                  {isManageable ? (
+                    <div className="post-owner-actions">
+                      <button
+                        type="button"
+                        className="btn-post-action btn-post-action--edit"
+                        onClick={() => handleOpenEditModal(post)}
+                        title="Edit this post to fix mistakes or change text/photo"
+                      >
+                        <IconEdit size={14} /> Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-post-action btn-post-action--delete"
+                        onClick={() => setPostToDelete(post)}
+                        title="Delete this post"
+                      >
+                        <IconTrash size={14} /> Delete
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="post-network-actions">
+                      <button
+                        type="button"
+                        className={`btn-connect-toggle ${isConnected ? "btn-connect-toggle--active" : ""}`}
+                        onClick={() => handleToggleConnect(post.authorName)}
+                        title={isConnected ? "Connected in network" : "Send connection request"}
+                      >
+                        {isConnected ? "🤝 Connected" : "+ Connect"}
+                      </button>
+                      <button
+                        type="button"
+                        className={`btn-follow-toggle ${isFollowing ? "btn-follow-toggle--active" : ""}`}
+                        onClick={() => handleToggleFollow(post.authorName)}
+                      >
+                        {isFollowing ? "Following ✓" : "+ Follow"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -401,39 +557,50 @@ export default function CommunityFeed({
       {/* Create Post Modal */}
       {isCreateModalOpen && (
         <div className="modal-backdrop" onClick={() => setIsCreateModalOpen(false)}>
-          <div className="modal-content create-post-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div>
-                <h3>Share an Update with Tamil Nadu</h3>
-                <p className="create-post-sub">Post job openings, career achievements, or seek advice.</p>
+          <div className="modal-content community-modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="community-modal-header">
+              <div className="community-modal-header-info">
+                <span className="community-modal-badge">
+                  <IconSparkles size={13} /> PUBLISH TO NETWORK
+                </span>
+                <h3 className="community-modal-title">Share an Update with Tamil Nadu</h3>
+                <p className="community-modal-subtitle">
+                  Post job openings, career achievements, or seek advice across all 38 districts.
+                </p>
               </div>
               <button
                 type="button"
-                className="btn-icon"
+                className="btn-modal-close"
                 onClick={() => setIsCreateModalOpen(false)}
+                title="Close"
               >
                 <IconClose size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleCreatePostSubmit} className="create-post-form">
-              <div className="form-group">
-                <label>Post Category / Badge</label>
+            <form onSubmit={handleCreatePostSubmit} className="community-modal-form">
+              <div className="form-field-card">
+                <label className="form-field-label">Post Category / Badge</label>
                 <select
+                  className="form-field-select"
                   value={newPostForm.badge}
                   onChange={(e) => setNewPostForm({ ...newPostForm, badge: e.target.value })}
                 >
-                  <option value="Hiring Announcement 📢">Hiring Announcement 📢</option>
-                  <option value="Career Achievement 🎉">Career Achievement 🎉</option>
-                  <option value="Open To Work 💼">Open To Work 💼</option>
-                  <option value="Project Showcase 💻">Project Showcase 💻</option>
-                  <option value="Career Advice & Tip 💡">Career Advice & Tip 💡</option>
+                  <option value="Hiring Announcement 📢">📢 Hiring Announcement</option>
+                  <option value="Career Achievement 🎉">🎉 Career Achievement</option>
+                  <option value="Open To Work 💼">💼 Open To Work</option>
+                  <option value="Project Showcase 💻">💻 Project Showcase</option>
+                  <option value="Career Advice & Tip 💡">💡 Career Advice & Tip</option>
                 </select>
               </div>
 
-              <div className="form-group">
-                <label>Post Content *</label>
+              <div className="form-field-card">
+                <div className="form-field-header-row">
+                  <label className="form-field-label">Post Content *</label>
+                  <span className="form-field-counter">{newPostForm.content.length} characters</span>
+                </div>
                 <textarea
+                  className="form-field-textarea"
                   rows={5}
                   required
                   placeholder="Share details about what you're hiring for, what you achieved, or what role you're seeking..."
@@ -442,22 +609,42 @@ export default function CommunityFeed({
                 />
               </div>
 
-              <div className="form-group">
-                <label>Keywords & Tags (Comma separated)</label>
+              <div className="form-field-card">
+                <label className="form-field-label">Keywords & Tags</label>
                 <input
+                  className="form-field-input"
                   type="text"
                   placeholder="e.g. CoimbatoreTech, Python, HiringNow, TamilNadu"
                   value={newPostForm.tags}
                   onChange={(e) => setNewPostForm({ ...newPostForm, tags: e.target.value })}
                 />
+                <div className="tag-pills-quickselect">
+                  <span className="tag-pills-label">Suggestions:</span>
+                  {POPULAR_TAGS.map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      className="quick-tag-chip"
+                      onClick={() => {
+                        const current = newPostForm.tags ? newPostForm.tags.split(",").map((t) => t.trim()) : [];
+                        if (!current.includes(tag)) {
+                          const updated = [...current, tag].filter(Boolean).join(", ");
+                          setNewPostForm({ ...newPostForm, tags: updated });
+                        }
+                      }}
+                    >
+                      +{tag}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Upload Photo Option */}
-              <div className="form-group">
-                <label>Add Photo to Post (Optional)</label>
+              <div className="form-field-card">
+                <label className="form-field-label">Add Photo to Post (Optional)</label>
                 {imagePreview ? (
-                  <div className="post-upload-preview-card">
-                    <img src={imagePreview} alt="Preview" className="post-upload-preview-img" />
+                  <div className="community-upload-preview-card">
+                    <img src={imagePreview} alt="Preview" className="community-upload-preview-img" />
                     <button
                       type="button"
                       className="btn-remove-preview"
@@ -468,9 +655,14 @@ export default function CommunityFeed({
                     </button>
                   </div>
                 ) : (
-                  <label className="feed-image-dropzone">
-                    <IconUploadCloud size={20} />
-                    <span>Upload workplace photo, certificate, or project screenshot</span>
+                  <label className="community-image-dropzone">
+                    <div className="dropzone-icon-circle">
+                      <IconUploadCloud size={24} />
+                    </div>
+                    <div className="dropzone-text-group">
+                      <span className="dropzone-title">Upload workplace photo, certificate, or flyer</span>
+                      <span className="dropzone-subtitle">Supports PNG, JPG, WebP up to 5MB</span>
+                    </div>
                     <input
                       type="file"
                       accept="image/*"
@@ -481,19 +673,177 @@ export default function CommunityFeed({
                 )}
               </div>
 
-              <div className="modal-footer">
+              <div className="community-modal-footer">
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-secondary btn-md"
                   onClick={() => setIsCreateModalOpen(false)}
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  Publish to Community
+                <button type="submit" className="btn btn-primary btn-md btn-glow">
+                  <IconSend size={15} /> Publish to Community
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Post Modal */}
+      {editingPost && (
+        <div className="modal-backdrop" onClick={() => setEditingPost(null)}>
+          <div className="modal-content community-modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="community-modal-header">
+              <div className="community-modal-header-info">
+                <span className="community-modal-badge community-modal-badge--edit">
+                  <IconEdit size={13} /> EDIT COMMUNITY POST
+                </span>
+                <h3 className="community-modal-title">Edit Your Update</h3>
+                <p className="community-modal-subtitle">
+                  Fix typos, update job requirements, adjust tags, or replace photos.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn-modal-close"
+                onClick={() => setEditingPost(null)}
+                title="Close"
+              >
+                <IconClose size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditPostSubmit} className="community-modal-form">
+              <div className="form-field-card">
+                <label className="form-field-label">Post Category / Badge</label>
+                <select
+                  className="form-field-select"
+                  value={editPostForm.badge}
+                  onChange={(e) => setEditPostForm({ ...editPostForm, badge: e.target.value })}
+                >
+                  <option value="Hiring Announcement 📢">📢 Hiring Announcement</option>
+                  <option value="Career Achievement 🎉">🎉 Career Achievement</option>
+                  <option value="Open To Work 💼">💼 Open To Work</option>
+                  <option value="Project Showcase 💻">💻 Project Showcase</option>
+                  <option value="Career Advice & Tip 💡">💡 Career Advice & Tip</option>
+                </select>
+              </div>
+
+              <div className="form-field-card">
+                <div className="form-field-header-row">
+                  <label className="form-field-label">Post Content *</label>
+                  <span className="form-field-counter">{editPostForm.content.length} characters</span>
+                </div>
+                <textarea
+                  className="form-field-textarea"
+                  rows={5}
+                  required
+                  placeholder="Update your post message here..."
+                  value={editPostForm.content}
+                  onChange={(e) => setEditPostForm({ ...editPostForm, content: e.target.value })}
+                />
+              </div>
+
+              <div className="form-field-card">
+                <label className="form-field-label">Keywords & Tags (Comma separated)</label>
+                <input
+                  className="form-field-input"
+                  type="text"
+                  placeholder="e.g. CoimbatoreTech, Python, HiringNow"
+                  value={editPostForm.tags}
+                  onChange={(e) => setEditPostForm({ ...editPostForm, tags: e.target.value })}
+                />
+              </div>
+
+              {/* Edit Attached Photo */}
+              <div className="form-field-card">
+                <label className="form-field-label">Attached Photo</label>
+                {editImagePreview ? (
+                  <div className="community-upload-preview-card">
+                    <img src={editImagePreview} alt="Preview" className="community-upload-preview-img" />
+                    <button
+                      type="button"
+                      className="btn-remove-preview"
+                      onClick={handleRemoveEditImage}
+                      title="Remove image"
+                    >
+                      ✕ Remove Photo
+                    </button>
+                  </div>
+                ) : (
+                  <label className="community-image-dropzone">
+                    <div className="dropzone-icon-circle">
+                      <IconUploadCloud size={24} />
+                    </div>
+                    <div className="dropzone-text-group">
+                      <span className="dropzone-title">Upload a new photo, certificate, or screenshot</span>
+                      <span className="dropzone-subtitle">Supports PNG, JPG, WebP up to 5MB</span>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleEditImageUpload}
+                      style={{ display: "none" }}
+                    />
+                  </label>
+                )}
+              </div>
+
+              <div className="community-modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-md"
+                  onClick={() => setEditingPost(null)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary btn-md btn-glow">
+                  <IconCheck size={16} /> Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {postToDelete && (
+        <div className="modal-backdrop" onClick={() => setPostToDelete(null)}>
+          <div className="modal-content delete-confirm-modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="delete-modal-icon-badge">
+              <IconTrash size={28} />
+            </div>
+            <h3 className="delete-modal-title">Delete Community Post?</h3>
+            <p className="delete-modal-desc">
+              Are you sure you want to remove this update from the Tamil Nadu talent feed? This action cannot be undone.
+            </p>
+
+            <div className="delete-post-preview-card">
+              <span className="delete-preview-author">{postToDelete.authorName}</span>
+              <p className="delete-preview-text">
+                {postToDelete.content.length > 120
+                  ? postToDelete.content.slice(0, 120) + "..."
+                  : postToDelete.content}
+              </p>
+            </div>
+
+            <div className="delete-modal-actions">
+              <button
+                type="button"
+                className="btn btn-secondary btn-md"
+                onClick={() => setPostToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger btn-md"
+                onClick={handleConfirmDelete}
+              >
+                <IconTrash size={15} /> Yes, Delete Post
+              </button>
+            </div>
           </div>
         </div>
       )}

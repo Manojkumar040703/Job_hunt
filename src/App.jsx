@@ -441,6 +441,30 @@ function AppContent() {
     addNotification(`Your update was published to Tamil Nadu career feed.`);
   }
 
+  // Community: Edit Post
+  function handleEditPost(postId, updatedData) {
+    setPosts((prev) =>
+      prev.map((p) => {
+        if (p.id === postId) {
+          return {
+            ...p,
+            ...updatedData,
+            isEdited: true,
+            editedAt: "Just now",
+          };
+        }
+        return p;
+      })
+    );
+    addNotification(`Your community post was successfully updated.`);
+  }
+
+  // Community: Delete Post
+  function handleDeletePost(postId) {
+    setPosts((prev) => prev.filter((p) => p.id !== postId));
+    addNotification(`Post deleted from community feed.`);
+  }
+
   // Community: Like Post
   function handleLikePost(postId) {
     setPosts((prev) =>
@@ -654,6 +678,8 @@ function handleDeleteApplication(target) {
             <CommunityFeed
               posts={posts}
               onCreatePost={handleCreatePost}
+              onEditPost={handleEditPost}
+              onDeletePost={handleDeletePost}
               onLikePost={handleLikePost}
               onAddComment={handleAddComment}
               onToast={showToast}
