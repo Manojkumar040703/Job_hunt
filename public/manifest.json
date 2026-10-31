@@ -1,0 +1,17 @@
+{
+  "short_name": "Job Hunt",
+  "name": "Job Hunt — Mobile Job Application Platform",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#080d1a",
+  "theme_color": "#1d4ed8",
+  "display": "standalone",
+  "orientation": "portrait"
+}

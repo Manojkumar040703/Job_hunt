@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="jh_fav_grad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5"/>
+      <stop offset="0.5" stop-color="#06B6D4"/>
+      <stop offset="1" stop-color="#10B981"/>
+    </linearGradient>
+    <linearGradient id="jh_arrow_grad" x1="25" y1="25" x2="75" y2="75" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E0E7FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="26" fill="url(#jh_fav_grad)"/>
+  <!-- Modern Upward Career Apex / Chevron Arrow -->
+  <path d="M28 62L50 30L72 62" stroke="url(#jh_arrow_grad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Target Horizon Bridge -->
+  <path d="M35 52H65" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+  <!-- Amber Beacon Center Dot -->
+  <circle cx="50" cy="42" r="5.5" fill="#FBBF24"/>
+</svg>

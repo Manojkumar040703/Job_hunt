@@ -1,0 +1,342 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+:root {
+  /* Brand Identity: JobTracker Pro TN — Modern Cyber Indigo Platform */
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-light: #eef2ff;
+  --primary-border: #c7d2fe;
+  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #06b6d4 100%);
+  --cyber-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #06b6d4 100%);
+
+  /* Regional Tamil Nadu Accents: Temple Gold & Kongu Emerald */
+  --accent-gold: #f59e0b;
+  --accent-gold-light: #fef3c7;
+  --accent-emerald: #10b981;
+  --accent-emerald-light: #ecfdf5;
+
+  --accent: #06b6d4;
+  --accent-light: #cffafe;
+  --accent-violet: #8b5cf6;
+
+  --bg-app: #f4f6fb;
+  --bg-surface: rgba(255, 255, 255, 0.85);
+  --bg-surface-elevated: #ffffff;
+  --bg-sidebar: #0b0f19;
+  --bg-sidebar-hover: #151c2e;
+  --bg-sidebar-active: #1e293b;
+
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(99, 102, 241, 0.15);
+  --glass-border-hover: rgba(99, 102, 241, 0.35);
+  --glass-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.08);
+
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --text-on-dark: #f8fafc;
+  --text-on-dark-muted: #94a3b8;
+
+  --border-light: rgba(226, 232, 240, 0.8);
+  --border-subtle: #f1f5f9;
+  --border-focus: #6366f1;
+
+  /* Status Colors */
+  --status-applied-bg: rgba(245, 158, 11, 0.12);
+  --status-applied-text: #b45309;
+  --status-applied-border: rgba(245, 158, 11, 0.3);
+
+  --status-review-bg: rgba(6, 182, 212, 0.12);
+  --status-review-text: #0e7490;
+  --status-review-border: rgba(6, 182, 212, 0.3);
+
+  --status-shortlist-bg: rgba(139, 92, 246, 0.12);
+  --status-shortlist-text: #6d28d9;
+  --status-shortlist-border: rgba(139, 92, 246, 0.3);
+
+  --status-interview-bg: rgba(99, 102, 241, 0.12);
+  --status-interview-text: #4338ca;
+  --status-interview-border: rgba(99, 102, 241, 0.3);
+
+  --status-selected-bg: rgba(16, 185, 129, 0.12);
+  --status-selected-text: #065f46;
+  --status-selected-border: rgba(16, 185, 129, 0.3);
+
+  --status-rejected-bg: rgba(239, 68, 68, 0.12);
+  --status-rejected-text: #991b1b;
+  --status-rejected-border: rgba(239, 68, 68, 0.3);
+
+  /* Dark-Theme Engineered Modern Typography: Geist (Headings) + Inter (Body UI) */
+  --font-heading: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-brand: 'Geist', 'Space Grotesk', -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'Fira Code', ui-monospace, monospace;
+
+  /* Elevation Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 6px 16px -2px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 14px 28px -4px rgba(15, 23, 42, 0.08);
+  --shadow-xl: 0 24px 38px -6px rgba(15, 23, 42, 0.12);
+  --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.35);
+  --shadow-glow-cyan: 0 0 30px rgba(6, 182, 212, 0.35);
+
+  /* Border Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Flagship Cyber Indigo Glassmorphic Dark Mode Theme */
+[data-theme="dark"] {
+  --bg-app: #060913;
+  --bg-surface: rgba(13, 20, 38, 0.75);
+  --bg-surface-elevated: rgba(20, 30, 58, 0.85);
+  --bg-sidebar: rgba(8, 12, 24, 0.95);
+  --bg-sidebar-hover: rgba(99, 102, 241, 0.12);
+  --bg-sidebar-active: rgba(99, 102, 241, 0.22);
+
+  --glass-bg: rgba(13, 20, 38, 0.65);
+  --glass-border: rgba(99, 102, 241, 0.22);
+  --glass-border-hover: rgba(129, 140, 248, 0.55);
+  --glass-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.55);
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+
+  --border-light: rgba(99, 102, 241, 0.16);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-focus: #818cf8;
+
+  --primary: #818cf8;
+  --primary-hover: #6366f1;
+  --primary-light: rgba(99, 102, 241, 0.18);
+  --primary-border: rgba(129, 140, 248, 0.35);
+
+  --accent-gold-light: rgba(245, 158, 11, 0.18);
+  --accent-emerald-light: rgba(16, 185, 129, 0.18);
+
+  --status-applied-bg: rgba(245, 158, 11, 0.18);
+  --status-applied-text: #fbbf24;
+  --status-applied-border: rgba(245, 158, 11, 0.38);
+
+  --status-review-bg: rgba(6, 182, 212, 0.2);
+  --status-review-text: #67e8f9;
+  --status-review-border: rgba(6, 182, 212, 0.4);
+
+  --status-shortlist-bg: rgba(139, 92, 246, 0.22);
+  --status-shortlist-text: #c4b5fd;
+  --status-shortlist-border: rgba(139, 92, 246, 0.45);
+
+  --status-interview-bg: rgba(99, 102, 241, 0.22);
+  --status-interview-text: #a5b4fc;
+  --status-interview-border: rgba(129, 140, 248, 0.45);
+
+  --status-selected-bg: rgba(16, 185, 129, 0.2);
+  --status-selected-text: #6ee7b7;
+  --status-selected-border: rgba(16, 185, 129, 0.45);
+
+  --status-rejected-bg: rgba(239, 68, 68, 0.2);
+  --status-rejected-text: #fca5a5;
+  --status-rejected-border: rgba(239, 68, 68, 0.4);
+
+  --shadow-sm: 0 2px 6px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px -2px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 16px 36px -4px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 35px rgba(99, 102, 241, 0.45);
+  --shadow-glow-cyan: 0 0 35px rgba(6, 182, 212, 0.45);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  min-height: 100%;
+  font-family: var(--font-body);
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  line-height: 1.55;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Light Theme Font Matching & Crisp Rendering */
+[data-theme="light"] body {
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: optimizeLegibility;
+  background-image: 
+    radial-gradient(circle at 5% 5%, rgba(99, 102, 241, 0.06) 0%, transparent 35%),
+    radial-gradient(circle at 95% 15%, rgba(6, 182, 212, 0.05) 0%, transparent 40%);
+  background-attachment: fixed;
+}
+
+/* Dark Theme Font Matching, Halation Reduction & Anti-glare Legibility */
+[data-theme="dark"] body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  letter-spacing: 0.012em;
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 90% 20%, rgba(6, 182, 212, 0.09) 0%, transparent 45%),
+    radial-gradient(circle at 50% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+[data-theme="dark"] h1, 
+[data-theme="dark"] h2, 
+[data-theme="dark"] h3, 
+[data-theme="dark"] h4, 
+[data-theme="dark"] h5, 
+[data-theme="dark"] h6 {
+  letter-spacing: -0.028em;
+  font-weight: 650;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] code,
+[data-theme="dark"] pre,
+[data-theme="dark"] kbd {
+  font-family: var(--font-mono);
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--text-main);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Glassmorphism System Utilities */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-panel-interactive {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-panel-interactive:hover {
+  border-color: var(--glass-border-hover);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-xl), 0 0 25px rgba(99, 102, 241, 0.18);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: var(--radius-full);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.6);
+}
+
+/* Global utility classes & animations */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 12px rgba(99, 102, 241, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+@keyframes voice-wave {
+  0%, 100% { height: 6px; }
+  50% { height: 26px; }
+}
+
+@keyframes neon-glow-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.8)); }
+}
+
+.voice-wave-bar {
+  display: inline-block;
+  width: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+  animation: voice-wave 1.2s ease-in-out infinite;
+}
+
+.voice-wave-bar:nth-child(2) { animation-delay: 0.15s; }
+.voice-wave-bar:nth-child(3) { animation-delay: 0.3s; }
+.voice-wave-bar:nth-child(4) { animation-delay: 0.45s; }
+.voice-wave-bar:nth-child(5) { animation-delay: 0.6s; }
+
+.pulse-active {
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Bento Grid System Tokens */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
